@@ -1,0 +1,72 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>EF1 MOTORSPORT | Official Championship Hub</title>
+    <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;500;600;700;800;900&family=Orbitron:wght@500;700;900&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <header>
+        <div class="nav-left">
+            <div class="logo-container" onclick="switchTab('home')">
+                <svg class="ef1-logo" viewBox="0 0 240 60" xmlns="http://www.w3.org/2000/svg">
+                    <defs><linearGradient id="logoGrad" x1="0%" y1="0%" x2="100%" y2="0%"><stop offset="0%" stop-color="#00D2FF" /><stop offset="100%" stop-color="#9D00FF" /></linearGradient></defs>
+                    <path d="M15 10 L65 10 L50 50 L0 50 Z" fill="url(#logoGrad)" opacity="0.15"/>
+                    <text x="12" y="44" font-family="'Orbitron', sans-serif" font-weight="900" font-size="36" fill="url(#logoGrad)" font-style="italic" letter-spacing="2">EF1</text>
+                </svg>
+            </div>
+        </div>
+        <div class="nav-links">
+            <button class="nav-btn active" onclick="switchTab('home')">Home &amp; News</button>
+            <button class="nav-btn" onclick="switchTab('drivers')">Drivers</button>
+            <button class="nav-btn" onclick="switchTab('teams')">Teams</button>
+            <button class="nav-btn" onclick="switchTab('calendar')">Calendar</button>
+            <button class="nav-btn" onclick="switchTab('results')">Race Results</button>
+            <button class="nav-btn fia-btn" onclick="switchTab('fia-login')" id="fiaNavBtn">FIA Panel</button>
+        </div>
+    </header>
+    <div class="app-layout">
+        <aside class="sidebar">
+            <div><h3><span>🏆 DRIVER CHAMPIONSHIP</span></h3><div class="mini-standings-list" id="sidebarDriverStandings"></div></div>
+            <div style="margin-top: 15px;"><h3><span>🏎️ CONSTRUCTOR CHAMPIONSHIP</span></h3><div class="mini-standings-list" id="sidebarConstructorStandings"></div></div>
+        </aside>
+        <main>
+            <section id="home" class="page-section active">
+                <div class="hero-banner"><div class="hero-content">
+                    <span class="season-badge">SEASON 1 LIVE</span>
+                    <h1>EF1 MOTORSPORT CHAMPIONSHIP</h1>
+                    <p>Welcome to the ultimate Brookhaven electric racing league. Precision engineered racing, 10 constructor teams, 20 elite drivers, and dynamic world-class circuits.</p>
+                    <div class="race-clock-widget"><div class="countdown-label">NEXT GRAND PRIX COUNTDOWN (SATURDAY 8:30 AM CST)</div><div id="raceCountdown" class="countdown-value">Loading Countdown...</div><div id="localTzLabel" class="timezone-label">Auto-detected for your local time zone</div></div>
+                    <button class="btn-primary hero-button" onclick="switchTab('calendar')">VIEW RACE CALENDAR</button>
+                </div></div>
+                <div class="section-header"><h1>Official Paddock News</h1><p>Latest announcements, penalties, and championship bulletins</p></div>
+                <div class="news-grid" id="newsGrid"></div>
+            </section>
+            <section id="drivers" class="page-section"><div class="section-header"><h1>Official Driver Lineup</h1><p>Click any driver card to inspect their live championship points</p></div><div class="teams-grid" id="driversGrid"></div></section>
+            <section id="teams" class="page-section"><div class="section-header"><h1>Constructor Teams</h1><p>Click any team card to inspect their constructor points breakdown</p></div><div class="teams-grid" id="teamsGrid"></div></section>
+            <section id="calendar" class="page-section"><div class="section-header"><h1>Season 1 Calendar</h1><p>Active Grand Prix rounds across global circuits</p></div><div class="calendar-grid" id="calendarGrid"></div></section>
+            <section id="results" class="page-section">
+                <div class="section-header"><h1>Race Results &amp; Classifications</h1><p>Official finishing order and points awarded per round</p></div>
+                <div style="margin-bottom: 20px;"><select id="resultRoundSelect" class="form-control" style="max-width: 300px; margin-bottom: 0;" onchange="renderResults()"></select></div>
+                <div class="table-container"><table><thead><tr><th style="width: 70px;">POS</th><th>DRIVER</th><th>TEAM</th><th>TIME / STATUS</th><th style="text-align: right; width: 90px;">PTS</th></tr></thead><tbody id="resultsTableBody"></tbody></table></div>
+            </section>
+            <section id="fia-login" class="page-section">
+                <div id="authContainer" class="auth-box"><h2>FIA Control Room</h2><p class="auth-description">Administrator controls require secure server-side authentication. This static demo does not enable administrator access.</p><input type="password" id="fiaPassInput" class="form-control" placeholder="Admin access unavailable" disabled><button class="btn-primary" onclick="handleLogin()">AUTHENTICATE</button><p id="authError" class="auth-error" style="display: none;"></p></div>
+                <div id="adminDashboard" class="admin-dashboard">
+                    <div class="dashboard-heading"><div><h2 class="orbitron active-heading">FIA CONTROL PANEL ACTIVE</h2><p class="muted-small">Authorized Administrator Session</p></div><button class="btn-danger" onclick="handleLogout()">LOGOUT</button></div>
+                    <div class="admin-section"><h3>Manage Race Results</h3><div class="grid-2"><div><label>Select Round</label><select id="adminRoundSelect" class="form-control"></select></div><div><label>Select Driver</label><select id="adminDriverSelect" class="form-control"></select></div></div><div class="grid-2 admin-row"><div><label>Position (1-20)</label><input type="number" id="adminPosInput" class="form-control" min="1" max="20" placeholder="1"></div><div><label>Time / Status</label><input type="text" id="adminStatusInput" class="form-control" value="Finished"></div></div><button class="btn-primary admin-action" onclick="saveAdminResult()">Publish / Update Result</button></div>
+                    <div class="admin-section"><h3>Manage Race Calendar</h3><div class="grid-2"><div><label>Add New Grand Prix Circuit</label><input type="text" id="newRoundInput" class="form-control" placeholder="e.g. Italy (Monza)"></div><div class="align-bottom"><button class="btn-primary" onclick="addRaceRound()">Add Round</button></div></div><div class="admin-row"><label>Remove Existing Round</label><div class="grid-2"><select id="adminRemoveRoundSelect" class="form-control"></select><button class="btn-danger" onclick="removeRaceRound()">Remove Selected Round</button></div></div></div>
+                    <div class="admin-section"><h3>Mid-Season Driver Transfer / Swap</h3><p class="muted-small admin-copy">Move any driver to a new constructor team instantly.</p><div class="grid-2"><div><label>Select Driver to Move</label><select id="swapDriverSelect" class="form-control"></select></div><div><label>Target Constructor Team</label><select id="swapTeamSelect" class="form-control"></select></div></div><button class="btn-primary admin-action" onclick="executeDriverSwap()">Execute Driver Transfer</button></div>
+                    <div class="admin-section"><h3>FIA Penalty / Bonus Points Adjuster</h3><p class="muted-small admin-copy">Add custom bonus points or subtract points (use negative numbers like -5).</p><div class="grid-2"><div><label>Select Driver</label><select id="fiaAdjDriverSelect" class="form-control"></select></div><div><label>Points to Add / Subtract</label><input type="number" id="fiaAdjPointsInput" class="form-control" placeholder="e.g. 5 or -3"></div></div><button class="btn-primary admin-action" onclick="applyFiaAdjustment()">Apply Points Adjustment</button></div>
+                    <div class="admin-section"><h3>Publish News Bulletin</h3><input type="text" id="adminNewsTitle" class="form-control" placeholder="Headline Title..."><textarea id="adminNewsContent" class="form-control" rows="4" placeholder="News article body content..."></textarea><button class="btn-primary" onclick="publishNews()">Publish News</button></div>
+                    <div class="admin-section"><h3>Data Backup &amp; Restore (JSON)</h3><p class="muted-small admin-copy">Export your league data to save or import an existing JSON backup file.</p><div class="grid-2"><button class="btn-primary" onclick="exportLeagueData()">Export JSON Backup</button><label class="btn-primary import-label">Import JSON Backup<input type="file" id="importFile" accept=".json" onchange="importLeagueData(event)"></label></div></div>
+                </div>
+            </section>
+        </main>
+    </div>
+    <div id="pointsModal" class="modal-overlay" style="display: none;"><div class="modal-content"><h3 id="modalTitle" class="orbitron modal-title">Inspection</h3><div id="modalBody" class="modal-body">Loading data...</div><button class="btn-primary" onclick="closeModal()">CLOSE</button></div></div>
+    <script src="script.js"></script>
+</body>
+</html>
